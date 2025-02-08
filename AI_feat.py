@@ -1,5 +1,7 @@
 from google import genai
 import numpy as np
+import pypdf as PdfReader
+from pdfquery import PDFQuery
 
 def budget_AI(budget): 
     client = genai.Client(api_key="AIzaSyCn5-qUOF12fzbQ5gwyC9o0ITeVA0ztTdY")
@@ -10,13 +12,17 @@ def budget_AI(budget):
     #print(response.text)
     return response.text
 
-def profitAnalysis_AI(): 
+''' def bank_statement_analysis(bank): 
+    
+    
+   
     client = genai.Client(api_key="AIzaSyCn5-qUOF12fzbQ5gwyC9o0ITeVA0ztTdY")
     response = client.models.generate_content(
-        model="gemini-2.0-flash", contents=""
-    )
-    #print(response.text)
-    return response.text
+        model="gemini-2.0-flash", contents="Analyze this bank statement and give the overall score of financially healthy spending from 1 - 100. No formatting" \
+        + " Only give the score and 4 sentences of advice to fix their spending and separate it with a :" + "here is the pdf content of the bank statement" + \
+              bank_statement)
+    print(" bank statement: " + response.text)
+    return response.text '''
 
 
 def gigFinder_AI(month, city, state, country): 
@@ -119,6 +125,7 @@ chatBot("How can i make my budget better. what are", "MothersCradle", "18-24", "
 parse_budget(1000)
 parse_gigs("February", "Athens", "GA", "United States")
 
+bank_statement_analysis("C:/Users/9jrus/Downloads/alex_beats_bank_statement_fixed.pdf")
 
 #longterm, shortterm, royalties, busi_sole, biggest_expense,\savings, investments, loan_credit, bank_account, \ ten_ninety_nine, income):
 financial_health_AI("become full-time musician that is signed to a record company" , "to make enough gigs to be able to afford my rent",\
