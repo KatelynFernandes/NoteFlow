@@ -1,49 +1,31 @@
-import React from "react";
-import { useNavigate } from 'react-router-dom';
+"use client"; // Required for Next.js client components
 
+import React from "react";
+import { useRouter } from "next/navigation"; // Import useRouter for navigation
+import "../styles/Login.css"; 
 
 const Login: React.FC = () => {
-  const navigate = useNavigate();
-
-  const handleSignUpClick = () => {
-    navigate('/signup');
-  };
-
+  const router = useRouter(); // Initialize router
 
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-100">
-      <div className="bg-white p-8 rounded-2xl shadow-lg w-96">
-        <h2 className="text-2xl font-bold text-center mb-4">Login</h2>
-        <form>
-          <div className="mb-4">
-            <label className="block text-gray-700">Username</label>
-            <input
-              type="text"
-              className="w-full p-2 border border-gray-300 rounded mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your username"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700">Password</label>
-            <input
-              type="password"
-              className="w-full p-2 border border-gray-300 rounded mt-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your password"
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-          >
-            Login
-          </button>
-        </form>
-        <p className="text-center text-gray-600 mt-4">
-          Don't have an account? <button onClick={handleSignUpClick}>Sign Up</button>
-        </p>
-      </div>
+    <div className="login-container">
+      <h2 className="login-title">Login</h2>
+      <form className="login-form">
+        <label>Email</label>
+        <input type="text" className="login-input" placeholder="Enter your email" />
+
+        <label>Password</label>
+        <input type="password" className="login-input" placeholder="Enter your password" />
+
+        <button type="submit" className="login-button">Login</button>
+      </form>
+      <p className="login-text">
+        Don't have an account?  
+        <a href="#" onClick={() => router.push("/Signup")} className="login-link"> Sign Up</a>
+      </p>
     </div>
   );
 };
 
 export default Login;
+
