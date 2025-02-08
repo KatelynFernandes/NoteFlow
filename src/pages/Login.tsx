@@ -1,6 +1,15 @@
 import React from "react";
+import { useNavigate } from 'react-router-dom';
+
 
 const Login: React.FC = () => {
+  const navigate = useNavigate();
+
+  const handleSignUpClick = () => {
+    navigate('/signup');
+  };
+
+
   return (
     <div className="flex items-center justify-center h-screen bg-gray-100">
       <div className="bg-white p-8 rounded-2xl shadow-lg w-96">
@@ -30,7 +39,7 @@ const Login: React.FC = () => {
           </button>
         </form>
         <p className="text-center text-gray-600 mt-4">
-          Don't have an account? <a href="#" className="text-blue-500">Sign Up</a>
+          Don't have an account? <button onClick={handleSignUpClick}>Sign Up</button>
         </p>
       </div>
     </div>
