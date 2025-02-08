@@ -21,7 +21,7 @@ const Login: React.FC = () => {
       </form>
       <p className="login-text">
         Don't have an account?  
-        <a href="#" onClick={() => router.push("/Signup")} className="login-link">Sign Up</a>
+        <a href="#" onClick={() => router.push("/Signup")} className="login-link"> Sign Up</a>
       </p>
     </div>
   );
