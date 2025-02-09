@@ -4,7 +4,8 @@ import React, { useState, useEffect} from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import "../styles/Events.css";
+//import "../styles/Events.css";
+import EventForm from "../components/EventForm";
 
 const Events: React.FC = () => {
   const [events, setEvents] = useState<any[]>([]);
@@ -62,13 +63,11 @@ const Events: React.FC = () => {
               </div>
             ))
           ) : (
-            <p>{events.length === 0 ? "No events found." : "Loading events..."}</p>
+            <p>{events.length > 0 ? ("Loading events...") : ("No events found.")}</p>
           )}
         </div>
 
-        <Link href="/pages/AddEvent">
-          <button className="add-event-button" aria-label="Add a new event">Add Event</button>
-        </Link>
+        <EventForm />
       </main>
 
     </div>

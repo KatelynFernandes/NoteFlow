@@ -18,7 +18,7 @@ const Header: React.FC = () => {
         <button className={styles.navButton} onClick={() => router.push("/Events")}>
           Events
         </button>
-        <button className={styles.navButton} onClick={() => router.push("/ChatBox")}>
+        <button className={styles.navButton} onClick={() => router.push("/ChatBot")}>
           ChatBox
         </button>
       </header>
