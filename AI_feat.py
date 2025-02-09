@@ -2,6 +2,10 @@ from google import genai
 import numpy as np
 import pypdf as PdfReader
 from pdfquery import PDFQuery
+from flask import Flask, jsonify
+import json
+
+
 
 def budget_AI(budget): 
     client = genai.Client(api_key="AIzaSyCn5-qUOF12fzbQ5gwyC9o0ITeVA0ztTdY")
@@ -68,8 +72,16 @@ def financial_health_AI(longterm, shortterm, royalties, busi_sole, biggest_expen
               (0-25: Very Bad, 26-50: Needs Work, 51-75: Good, 76-85: Great, 86-100: Amazing!) NO FORMATTING separate the score, classification and advise with a : "
     )
     financial_health = response.text.split(":")
-    print(financial_health)
-    return financial_health
+    financial_health = {"score": financial_health[0],
+                        "class": financial_health[1],
+                        "advisement": financial_health[2]}
+
+    json_fin_health = json.dumps(financial_health)
+
+    with open("fin_health.json", "w") as file: 
+       json.dump(json_fin_health, file, indent=4)
+    print(json_fin_health)
+    return json_fin_health
 
 def chatBot(input, name, age, genre, city, state, experienceLvl, groupsize, instruments, position, income, budget ): 
    
@@ -82,8 +94,17 @@ def chatBot(input, name, age, genre, city, state, experienceLvl, groupsize, inst
                 " years and theyre group has" + str(groupsize) + " members who play" + instruments +"They hava a average income of " + str(income) + \
                     "Be specific and super detailed. give resources and give recommendations in max 6 sentenences and soltions based on this persons details. Dont over explain things unless prompted and dont add formatting. Do not make a revised budget" + input
         )
-    print(response.text)
-    return response.text
+   
+    chat_resp = {"input": input, 
+                 "response": response.text}
+    json_chatBot = json.dumps(chat_resp)
+
+    with open("chatBot.json", "w") as file: 
+       json.dump(json_chatBot, file, indent=4)
+
+    print(chat_resp)
+
+    return chat_resp
 
 
 def parse_budget(budget): 
@@ -100,6 +121,11 @@ def parse_budget(budget):
         }
         print(areas[i])
         i +=1
+
+    json_budget = json.dumps(areas)
+
+    with open("budget.json", "w") as file: 
+       json.dump(json_budget, file, indent=1)
 
     return areas
 
@@ -120,12 +146,19 @@ def parse_gigs(month, city, state, country):
           print(gigs[i])
           i +=1
 
+    json_gigs = json.dumps(gigs)
+
+    with open("gigs.json", "w") as file: 
+       json.dump(json_gigs, file, indent=1)
+
+    return gigs
+
 #input, age, genre, city, state, experienceLvl, groupsize, instruments, position, income
 chatBot("How can i make my budget better. what are", "MothersCradle", "18-24", "punk", "Athens", "GA", 3, 4, "vocal, piano, guitar, drums", "music", 1000, budget_AI(1000))
 parse_budget(1000)
 parse_gigs("February", "Athens", "GA", "United States")
 
-bank_statement_analysis("C:/Users/9jrus/Downloads/alex_beats_bank_statement_fixed.pdf")
+#bank_statement_analysis("C:/Users/9jrus/Downloads/alex_beats_bank_statement_fixed.pdf")
 
 #longterm, shortterm, royalties, busi_sole, biggest_expense,\savings, investments, loan_credit, bank_account, \ ten_ninety_nine, income):
 financial_health_AI("become full-time musician that is signed to a record company" , "to make enough gigs to be able to afford my rent",\
