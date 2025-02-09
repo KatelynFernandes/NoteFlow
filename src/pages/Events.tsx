@@ -1,6 +1,6 @@
 "use client"; // Required for Next.js client components
 
-import React from "react";
+import React, { useState, useEffect} from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";

@@ -2,10 +2,47 @@ from google import genai
 import numpy as np
 import pypdf as PdfReader
 from pdfquery import PDFQuery
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 import json
+import threading
+import time
+from flask_cors import CORS
+
+noteflow = Flask(__name__)
+CORS(noteflow)
+
+#json files
+FILES = {
+   "finHealthScore": "fin_health.json",
+    "budget": "budget.json",
+    "chatbot": "chatBot.json",
+    "gigs": "gigs.json"
+}
+
+@noteflow.route("/get-data/<data_type>", methods=["GET"])
+def get_data(data_type):
+    if data_type in FILES:
+        return jsonify(read_json(FILES[data_type]))
+    return jsonify({"error": "Invalid data type"}), 400
+
+@noteflow.route("/update-data/<data_type>", methods=["POST"])
+def update_data(data_type, new_data):
+    if data_type in FILES:
+        new_data = request.json  # Expecting JSON data from frontend
+        update_json(FILES[data_type], new_data)
+        return jsonify({"status": "success"})
+    return jsonify({"error": "Invalid data type"}), 400
+  
+
+def update_json(data, filename):
+    print("filename: " + filename) 
+    with open(filename, "w") as file:
+       json.dump(data, file, indent=4)
 
 
+def read_json(filename):
+   with open (filename, 'r') as file:
+      return json.load(file)
 
 def budget_AI(budget): 
     client = genai.Client(api_key="AIzaSyCn5-qUOF12fzbQ5gwyC9o0ITeVA0ztTdY")
@@ -51,6 +88,7 @@ def gigFinder_AI(month, city, state, country):
 # Are you investing in any assets
 # what is your biggest expense
 
+
 def financial_health_AI(longterm, shortterm, royalties, busi_sole, biggest_expense,\
                         savings, investments, loan_credit, bank_account, \
                             ten_ninety_nine, income): #, age, genre, city, state, experienceLvl, groupsize, instruments, position, income, budget ): 
@@ -75,17 +113,18 @@ def financial_health_AI(longterm, shortterm, royalties, busi_sole, biggest_expen
     financial_health = {"score": financial_health[0],
                         "class": financial_health[1],
                         "advisement": financial_health[2]}
+    
 
     json_fin_health = json.dumps(financial_health)
 
-    with open("fin_health.json", "w") as file: 
-       json.dump(json_fin_health, file, indent=4)
+    update_data(json_fin_health, "fin_health.json")
+
     print(json_fin_health)
     return json_fin_health
 
-def chatBot(input, name, age, genre, city, state, experienceLvl, groupsize, instruments, position, income, budget ): 
-   
 
+
+def chatBot(input, name, age, genre, city, state, experienceLvl, groupsize, instruments, position, income, budget ): 
     client = genai.Client(api_key="AIzaSyCn5-qUOF12fzbQ5gwyC9o0ITeVA0ztTdY")
     response = client.models.generate_content(
         model="gemini-2.0-flash", contents= "Pretend you are the financial and logistical manager of a " + position + "(group) named " + name + " your job is to do the logistically and all nonmusic \
@@ -99,9 +138,8 @@ def chatBot(input, name, age, genre, city, state, experienceLvl, groupsize, inst
                  "response": response.text}
     json_chatBot = json.dumps(chat_resp)
 
-    with open("chatBot.json", "w") as file: 
-       json.dump(json_chatBot, file, indent=4)
-
+    update_data(json_chatBot, "chatBot.json")
+    
     print(chat_resp)
 
     return chat_resp
@@ -124,8 +162,8 @@ def parse_budget(budget):
 
     json_budget = json.dumps(areas)
 
-    with open("budget.json", "w") as file: 
-       json.dump(json_budget, file, indent=1)
+    update_data(json_budget, "budget.json")
+
 
     return areas
 
@@ -148,10 +186,12 @@ def parse_gigs(month, city, state, country):
 
     json_gigs = json.dumps(gigs)
 
-    with open("gigs.json", "w") as file: 
-       json.dump(json_gigs, file, indent=1)
+    update_data(json_gigs, "gigs.json")
 
     return gigs
+
+if __name__ == "__main__":
+   noteflow.run(debug=True)
 
 #input, age, genre, city, state, experienceLvl, groupsize, instruments, position, income
 chatBot("How can i make my budget better. what are", "MothersCradle", "18-24", "punk", "Athens", "GA", 3, 4, "vocal, piano, guitar, drums", "music", 1000, budget_AI(1000))
