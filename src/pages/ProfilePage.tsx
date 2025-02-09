@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import "../styles/ProfilePage.css";
 
 const ProfilePage: React.FC = () => {
   const router = useRouter();
