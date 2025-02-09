@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useRouter } from "next/navigation"; // Import useRouter for navigation
-import "../styles/Login.css"; 
+import styles from "../styles/Login.module.css";
 
 const Login: React.FC = () => {
   const router = useRouter(); // Initialize router
