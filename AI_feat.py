@@ -19,39 +19,13 @@ FILES = {
     "gigs": "gigs.json"
 }
 
-@noteflow.route("/get-data/<data_type>", methods=["GET"])
-def get_data(data_type):
-    if data_type in FILES:
-        return jsonify(read_json(FILES[data_type]))
-    return jsonify({"error": "Invalid data type"}), 400
-
-@noteflow.route("/update-data/<data_type>", methods=["POST"])
-def update_data(data_type):
-    if data_type in FILES:
-        new_data = request.json  # Expecting JSON data from frontend
-        file = str(data_type) + ".json"
-        update_json(FILES[data_type], new_data, file)
-        return jsonify({"status": "success"})
-    return jsonify({"error": "Invalid data type"}), 400
-  
-
-def update_json(data, newdata, filename):
-    print("filename: " , str(filename) , "\n\n\n") 
-    with open(filename, "w") as file:
-       json.dump(data, file, indent=4)
-
-
-def read_json(filename):
-   with open (filename, 'r') as file:
-      return json.load(file)
-
 def budget_AI(budget): 
     client = genai.Client(api_key="AIzaSyCn5-qUOF12fzbQ5gwyC9o0ITeVA0ztTdY")
     response = client.models.generate_content(
         model="gemini-2.0-flash", contents="Make a budget for music artist based on" + str(budget) + " amount of money." \
-        "make it in the form like marketing: 400 , website: 500 , ads: 40, etc. Do not add any other words or formatting at all"
+        "make it in the form like marketing: 400 , website: 500 , ads: 40, etc. Do not add any other words or formatting at all make 5 different sections of expenses"
     )
-    #print(response.text)
+    print(response.text)
     return response.text
 
 ''' def bank_statement_analysis(bank): 
@@ -118,7 +92,7 @@ def financial_health_AI(longterm, shortterm, royalties, busi_sole, biggest_expen
 
     json_fin_health = json.dumps(financial_health)
 
-    update_data(json_fin_health, "fin_health.json")
+    write_json(json_fin_health, "fin_health.json")
 
     print(json_fin_health)
     return json_fin_health
@@ -139,7 +113,7 @@ def chatBot(input, name, age, genre, city, state, experienceLvl, groupsize, inst
                  "response": response.text}
     json_chatBot = json.dumps(chat_resp)
 
-    update_data(json_chatBot, "chatBot.json")
+    write_json(json_chatBot, "chatBot.json")
     
     print(chat_resp)
 
@@ -163,8 +137,11 @@ def parse_budget(budget):
 
     json_budget = json.dumps(areas)
 
-    update_data(json_budget, "budget.json")
+    print("areas: " , areas)
 
+    write_json(areas, "budget.json")
+    
+    #print("areas: " , areas)
 
     return areas
 
@@ -187,17 +164,52 @@ def parse_gigs(month, city, state, country):
 
     json_gigs = json.dumps(gigs)
 
-    update_data(json_gigs, "gigs.json")
+    write_json(json_gigs, "gigs.json")
 
     return gigs
 
-if __name__ == "__main__":
-   noteflow.run(debug=True)
+@noteflow.route("/get-data/<data_type>", methods=["GET"])
+def get_data(data_type):
+    if data_type in FILES:
+        print(str(FILES[data_type]))
+        data = read_json(FILES[data_type])
+        print("get_data: " + str(data))
+        print(f"Sending {data_type}: {data}")  # Debug log
+        return jsonify(data)
+    return jsonify({"error": "Invalid data type"}), 400
+
+@noteflow.route("/update-data/<data_type>", methods=["POST"])
+def update_data(data_type):
+    if data_type in FILES:
+        new_data = request.json  # Expecting JSON data from frontend
+        file = str(data_type) + ".json"
+        update_json(FILES[data_type], new_data, file)
+        return jsonify({"status": "success"})
+    return jsonify({"error": "Invalid data type"}), 400 
+  
+
+def update_json(data, newdata, filename):
+    print("filename: " , str(filename) , "\n\n\n") 
+    with open(filename, "w") as file:
+       json.dump(newdata, file, indent=4)
+    print("newdata: ", newdata)
+
+def write_json(data, filename): 
+   print("data: ", data)
+   with open(filename, "w") as file: 
+      json.dump(data, file, indent=4)
+
+
+def read_json(filename):
+   with open (filename, 'r') as file:
+      return json.load(file)
+
+
 
 #input, age, genre, city, state, experienceLvl, groupsize, instruments, position, income
-chatBot("How can i make my budget better. what are", "MothersCradle", "18-24", "punk", "Athens", "GA", 3, 4, "vocal, piano, guitar, drums", "music", 1000, budget_AI(1000))
+#chatBot("How can i make my budget better. what are", "MothersCradle", "18-24", "punk", "Athens", "GA", 3, 4, "vocal, piano, guitar, drums", "music", 1000, budget_AI(1000))
 parse_budget(1000)
-parse_gigs("February", "Athens", "GA", "United States")
+#parse_gigs("February", "Athens", "GA", "United States")
 
 #bank_statement_analysis("C:/Users/9jrus/Downloads/alex_beats_bank_statement_fixed.pdf")
 
@@ -207,3 +219,5 @@ financial_health_AI("become full-time musician that is signed to a record compan
                           "I have an emergency fund with $1000", "No i do not invest anything", "yes, i have 10,000 in loans and 500 credit card debt", \
                             "I do not have a separate bank account", "I have completed my 1099 tax form this year", "my main source of income is live gigs")
 
+if __name__ == "__main__":
+   noteflow.run(debug=True)

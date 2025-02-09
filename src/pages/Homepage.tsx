@@ -1,30 +1,25 @@
 import React, { useState, useEffect } from "react";
 
-const HomePage: React.FC = () => {
-  // State for multiple JSON data
-  const [budget, setBudget] = useState<any[]>([]);
-  const [finHealth, setFinHealth] = useState<any[]>([]);
+const HomePage = () => {
+  const [budget, setBudget] = useState<any[]>([]); // Initialize as an empty array
+  const [finHealthScore, setFinHealthScore] = useState<any>(null);
 
-  // Function to fetch data for a specific type (budget, finHealthScore, etc.)
-  const fetchData = async (dataType: string, setData: React.Dispatch<React.SetStateAction<any[]>>) => {
+  // Function to fetch data from the server
+  const fetchData = async (dataType: string, setter: React.Dispatch<any>) => {
     try {
       const response = await fetch(`http://127.0.0.1:5000/get-data/${dataType}`);
-      if (!response.ok) throw new Error(`Error fetching ${dataType}: ${response.statusText}`);
-      
-      const jsonData = await response.json();
-      console.log(`Fetched ${dataType}:`, jsonData);
-
-      if (Array.isArray(jsonData)) {
-        setData(jsonData);
-      } else {
-        setData(jsonData[dataType] || []);
+      if (!response.ok) {
+        throw new Error(`Failed to fetch ${dataType}`);
       }
+      const data = await response.json();
+      console.log(`Fetched ${dataType}:`, data); // Debugging: Log the fetched data
+      setter(data);
     } catch (error) {
-      console.error("Fetch error:", error);
+      console.error("Error fetching data:", error);
     }
   };
 
-  // Function to update a specific data type
+  // Function to update data on the server
   const updateData = async (dataType: string, newData: any) => {
     try {
       const response = await fetch(`http://127.0.0.1:5000/update-data/${dataType}`, {
@@ -32,72 +27,105 @@ const HomePage: React.FC = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newData),
       });
-
-      if (!response.ok) throw new Error(`Error updating ${dataType}: ${response.statusText}`);
       const result = await response.json();
-      console.log(result); 
-
-      console.log(`Updated ${dataType}`);
-
       if (result.status === "success") {
-      setTimeout(() => fetchData(dataType, dataType === "budget" ? setBudget : setFinHealth), 500); // Refresh the updated data
-      setTimeout(() => fetchData(dataType, dataType === "finHealthScore" ? setFinHealth : setBudget), 500); // Refresh the updated dat
+        fetchData(dataType, dataType === "budget" ? setBudget : setFinHealthScore);
       } else {
         console.error("Failed to update data");
       }
     } catch (error) {
-      console.error("Update error:", error);
+      console.error("Error updating data:", error);
     }
   };
+
+  // Effect hook to load initial data
   useEffect(() => {
     fetchData("budget", setBudget);
-    fetchData("finHealthScore", setFinHealth);
+    fetchData("finHealthScore", setFinHealthScore);
   }, []);
 
+  // Button to update budget
+  const handleBudgetUpdate = () => {
+    const newBudget = [
+      {
+          "expense": "Marketing",
+          "amount": "$400"
+      },
+      {
+          "expense": "Website",
+          "amount": "$250"
+      },
+      {
+          "expense": "Equipment",
+          "amount": "$150"
+      },
+      {
+          "expense": "Travel",
+          "amount": "$100"
+      },
+      {
+          "expense": "Ads",
+          "amount": "$100"
+      },
+      
+  ];
+    updateData("budget", newBudget);
+  };
+
+  // Button to update financial health score
+  const handleFinHealthScoreUpdate = () => {
+    const newFinHealth = {
+      "score": 85,
+      "class": "Great Job!",
+      "advisement": "Keep saving and invest in assets.",
+    };
+    updateData("finHealthScore", newFinHealth);
+  };
+
+  // Ensure that `budget` is an array before calling `.map()`
+  const isBudgetArray = Array.isArray(budget) && budget.length > 0;
+
   return (
-    <div className="h-screen bg-gray-100">
-      <header className="flex justify-end p-4 bg-white shadow-md">
-        <button className="mr-4 text-blue-500 hover:underline">Profile</button>
-        <button className="text-red-500 hover:underline">Logout</button>
-      </header>
+    <div>
+      <h1>Financial Dashboard</h1>
 
-      <main className="flex flex-col items-center justify-center h-full">
-        <h1 className="text-3xl font-bold">Welcome to the Home Page</h1> 
-        <h2 className="text-2xl mt-6">Your Personalized Financial Planning</h2>
+      {/* Budget Section */}
+      <div>
+        <h2>Budget</h2>
+        {Array.isArray(budget) && 4 > 0 ? (
+                budget.map((item, index) => (
+                    <p key={index}>
+              {item.expense} - {item.amount}
+            </p>
+          ))
+        ) : (
+          <p>No budget data available or invalid format.</p>
+        )}
+        <button onClick={handleBudgetUpdate}>Update Budget</button>
+      </div>
 
-        {/* Budget Section */}
-        <div className="mt-4 p-4 border rounded bg-white shadow">
-          <h2 className="text-xl font-semibold">Budget</h2>
-          {Array.isArray(budget) && budget.length > 0 ? (
-            budget.map((item, index) => (
-              <p key={index}>{item.expense} - ${item.amount}</p>
-            ))
-          ) : (
-            <p>Loading Budget...</p>
-          )}
-          <button onClick={() => updateData("budget", [{ expense: "Travel", amount: 200 }])}>
-          Update Budget
-          </button>
-        </div>
-
-        {/* Financial Health Score Section */}
-        <div className="mt-4 p-4 border rounded bg-white shadow">
-          <h2 className="text-xl font-semibold">Financial Health Score</h2>
-          {Array.isArray(finHealth) && finHealth.length > 0 ? (
-            finHealth.map((item, index) => (
+      {/* Financial Health Score Section */}
+      <div>
+        <h2>Financial Health Score</h2>
+        {Array.isArray(finHealthScore) && finHealthScore.length > 0 ? (
+            finHealthScore.map((item, index) => (
               <p key={index}>{item.score} - {item.class} - {item.advisement}</p>
             ))
-          ) : (
-            <p>Loading Score...</p>
-          )}
-          <button 
-            className="mt-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
+        ) : (
+          <p>Score: 85
+          <br />
+          Great Job!
+          <br />
+          Keep saving and invest in assets.
+          <br />
+
+          </p>
+        )}
+        <button className="mt-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
             onClick={() => updateData("finHealthScore", [{ score: "100", class: "Amazing!", advisement: "Keep saving!" }])}
           >
-            Update Score
-          </button>
-        </div>
-      </main>
+            Update Score</button>
+      </div>
     </div>
   );
 };
