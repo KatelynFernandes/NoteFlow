@@ -40,8 +40,8 @@ const HomePage: React.FC = () => {
       console.log(`Updated ${dataType}`);
 
       if (result.status === "success") {
-      setTimeout(() => fetchData(dataType, dataType === "budget" ? setBudget : setFinHealth)); // Refresh the updated data
-      setTimeout(() => fetchData(dataType, dataType === "finHealthScore" ? setFinHealth : setBudget)); // Refresh the updated dat
+      setTimeout(() => fetchData(dataType, dataType === "budget" ? setBudget : setFinHealth), 500); // Refresh the updated data
+      setTimeout(() => fetchData(dataType, dataType === "finHealthScore" ? setFinHealth : setBudget), 500); // Refresh the updated dat
       } else {
         console.error("Failed to update data");
       }

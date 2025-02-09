@@ -26,16 +26,17 @@ def get_data(data_type):
     return jsonify({"error": "Invalid data type"}), 400
 
 @noteflow.route("/update-data/<data_type>", methods=["POST"])
-def update_data(data_type, new_data):
+def update_data(data_type):
     if data_type in FILES:
         new_data = request.json  # Expecting JSON data from frontend
-        update_json(FILES[data_type], new_data)
+        file = str(data_type) + ".json"
+        update_json(FILES[data_type], new_data, file)
         return jsonify({"status": "success"})
     return jsonify({"error": "Invalid data type"}), 400
   
 
-def update_json(data, filename):
-    print("filename: " + filename) 
+def update_json(data, newdata, filename):
+    print("filename: " , str(filename) , "\n\n\n") 
     with open(filename, "w") as file:
        json.dump(data, file, indent=4)
 
